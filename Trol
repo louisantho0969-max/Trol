@@ -1,0 +1,162 @@
+-- Panel Multicolore + Bouton YO! (Nameless Admin)
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- Supprimer l'ancien GUI s'il existe
+if playerGui:FindFirstChild("YoPanel") then
+    playerGui.YoPanel:Destroy()
+end
+
+-- Création du ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "YoPanel"
+screenGui.ResetOnSpawn = false
+screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+screenGui.Parent = playerGui
+
+-- Frame principale (panel)
+local main = Instance.new("Frame")
+main.Name = "Main"
+main.Size = UDim2.new(0, 280, 0, 160)
+main.Position = UDim2.new(0.5, -140, 0.5, -80)
+main.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+main.BorderSizePixel = 0
+main.Parent = screenGui
+
+-- Coins arrondis
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 16)
+corner.Parent = main
+
+-- Dégradé multicolore
+local gradient = Instance.new("UIGradient")
+gradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 128)),   -- Rose
+    ColorSequenceKeypoint.new(0.3, Color3.fromRGB(0, 200, 255)),  -- Cyan
+    ColorSequenceKeypoint.new(0.6, Color3.fromRGB(0, 255, 100)),  -- Vert
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 200, 0))     -- Orange
+})
+gradient.Rotation = 45
+gradient.Parent = main
+
+-- Bordure brillante
+local stroke = Instance.new("UIStroke")
+stroke.Color = Color3.fromRGB(255, 255, 255)
+stroke.Thickness = 2
+stroke.Transparency = 0.3
+stroke.Parent = main
+
+-- Titre
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 40)
+title.Position = UDim2.new(0, 0, 0, 8)
+title.BackgroundTransparency = 1
+title.Text = "🔥 YO PANEL 🔥"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 22
+title.Parent = main
+
+-- Bouton YO!
+local button = Instance.new("TextButton")
+button.Name = "YoButton"
+button.Size = UDim2.new(0, 200, 0, 55)
+button.Position = UDim2.new(0.5, -100, 0.55, -20)
+button.BackgroundColor3 = Color3.fromRGB(255, 50, 100)
+button.Text = "YO!"
+button.TextColor3 = Color3.fromRGB(255, 255, 255)
+button.Font = Enum.Font.GothamBlack
+button.TextSize = 28
+button.Parent = main
+
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0, 12)
+buttonCorner.Parent = button
+
+local buttonStroke = Instance.new("UIStroke")
+buttonStroke.Color = Color3.fromRGB(255, 255, 255)
+buttonStroke.Thickness = 2
+buttonStroke.Parent = button
+
+-- Effet hover
+button.MouseEnter:Connect(function()
+    TweenService:Create(button, TweenInfo.new(0.2), {
+        BackgroundColor3 = Color3.fromRGB(0, 220, 255),
+        Size = UDim2.new(0, 210, 0, 60)
+    }):Play()
+end)
+
+button.MouseLeave:Connect(function()
+    TweenService:Create(button, TweenInfo.new(0.2), {
+        BackgroundColor3 = Color3.fromRGB(255, 50, 100),
+        Size = UDim2.new(0, 200, 0, 55)
+    }):Play()
+end)
+
+-- Action du bouton YO!
+button.MouseButton1Click:Connect(function()
+    -- Animation de clic
+    TweenService:Create(button, TweenInfo.new(0.1), {
+        Size = UDim2.new(0, 190, 0, 50)
+    }):Play()
+    
+    task.wait(0.1)
+    
+    TweenService:Create(button, TweenInfo.new(0.15), {
+        Size = UDim2.new(0, 200, 0, 55)
+    }):Play()
+    
+    -- Exécution du script Nameless Admin
+    local success, err = pcall(function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/ltseverydayyou/Nameless-Admin/main/Source.lua"))()
+    end)
+    
+    if success then
+        button.Text = "ACTIVÉ !"
+        button.BackgroundColor3 = Color3.fromRGB(0, 255, 100)
+        task.wait(1.5)
+        button.Text = "YO!"
+        button.BackgroundColor3 = Color3.fromRGB(255, 50, 100)
+    else
+        button.Text = "ERREUR"
+        button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+        warn("Erreur : " .. tostring(err))
+        task.wait(2)
+        button.Text = "YO!"
+        button.BackgroundColor3 = Color3.fromRGB(255, 50, 100)
+    end
+end)
+
+-- Rendre le panel déplaçable
+local dragging = false
+local dragStart, startPos
+
+main.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = main.Position
+    end
+end)
+
+main.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = false
+    end
+end)
+
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        local delta = input.Position - dragStart
+        main.Position = UDim2.new(
+            startPos.X.Scale,
+            startPos.X.Offset + delta.X,
+            startPos.Y.Scale,
+            startPos.Y.Offset + delta.Y
+        )
+    end
+end)
+
+print("✅ Yo Panel chargé ! Clique sur YO! pour lancer Nameless Admin")
